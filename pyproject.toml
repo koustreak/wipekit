@@ -6,16 +6,20 @@ authors = [
     { name = "Your Name", email = "your.email@example.com" },
 ]
 dependencies = [
-    "pandas>=1.0.0",
     "numpy>=1.20.0",
     "scikit-learn>=1.0.0",
+    "psycopg2-binary>=2.9.9",
 ]
 requires-python = ">=3.8"
 readme = "README.md"
 license = { file = "LICENSE" }
 
 [project.optional-dependencies]
-# Example optional dependencies for specific functionalities
+# Core optional features
+pandas = ["pandas>=2.0.0"]
+spark = ["pyspark>=3.5.0"]
+
+# Domain-specific features
 time-series = [
     "pmdarima>=2.0.0",
     "statsmodels>=0.13.0",
@@ -33,9 +37,22 @@ big-data = [
     "dask[dataframe]>=2023.0.0",
 ]
 
+# Convenience group for all features
+all = [
+    "pandas>=2.0.0",
+    "pyspark>=3.5.0",
+    "pmdarima>=2.0.0",
+    "statsmodels>=0.13.0",
+    "nltk>=3.6.0",
+    "spacy>=3.0.0",
+    "geopandas>=0.10.0",
+    "shapely>=1.8.0",
+    "dask[dataframe]>=2023.0.0",
+]
+
 [build-system]
 requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
-packages = ["wipekit"] 
+packages = ["wipekit"]

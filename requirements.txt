@@ -1,3 +1,7 @@
-pandas>=1.0.0
-numpy>=1.20.0
-scikit-learn>=1.0.0 
+# Required dependencies
+psycopg2-binary>=2.9.9
+
+# Optional dependencies for different output formats
+# Install with: pip install wipekit[pandas] or pip install wipekit[spark]
+pandas>=2.0.0; extra == 'pandas'  # Optional: for pandas output format
+pyspark>=3.5.0; extra == 'spark'  # Optional: for spark output format
