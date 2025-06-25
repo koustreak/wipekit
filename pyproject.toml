@@ -1,0 +1,41 @@
+[project]
+name = "wipekit"
+version = "0.1.0"
+description = "A blazing-fast, modular, and exhaustive Python library for data preprocessing."
+authors = [
+    { name = "Your Name", email = "your.email@example.com" },
+]
+dependencies = [
+    "pandas>=1.0.0",
+    "numpy>=1.20.0",
+    "scikit-learn>=1.0.0",
+]
+requires-python = ">=3.8"
+readme = "README.md"
+license = { file = "LICENSE" }
+
+[project.optional-dependencies]
+# Example optional dependencies for specific functionalities
+time-series = [
+    "pmdarima>=2.0.0",
+    "statsmodels>=0.13.0",
+]
+nlp = [
+    "nltk>=3.6.0",
+    "spacy>=3.0.0",
+]
+geospatial = [
+    "geopandas>=0.10.0",
+    "shapely>=1.8.0",
+]
+big-data = [
+    "pyspark>=3.0.0",
+    "dask[dataframe]>=2023.0.0",
+]
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["wipekit"] 
