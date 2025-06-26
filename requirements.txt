@@ -1,5 +1,7 @@
 # Required dependencies
 psycopg2-binary>=2.9.9
+mysql-connector-python>=8.0.0
+oracledb>=2.0.0  # For Oracle database connectivity
 
 # Optional dependencies for different output formats
 # Install with: pip install wipekit[pandas] or pip install wipekit[spark]
