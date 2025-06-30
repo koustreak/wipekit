@@ -39,9 +39,8 @@ with OracleManager(config) as oracle:
 """
 
 from typing import Optional, Dict, Any, List, Union, TYPE_CHECKING
-import logging
-from dataclasses import dataclass
 from contextlib import contextmanager
+from ..logging import configure_logger, get_logger
 
 try:
     import oracledb
@@ -65,6 +64,9 @@ if TYPE_CHECKING:
 
 # Type alias for query results
 ResultType = Union[List[Dict[str, Any]], 'pd.DataFrame']
+# Logger configuration
+configure_logger()
+logger = get_logger("wipekit.read.oracle")
 
 class OracleManager:
     """

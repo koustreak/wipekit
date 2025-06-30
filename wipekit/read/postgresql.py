@@ -33,8 +33,8 @@ with PostgreSQLManager(config) as pg:
 """
 
 from typing import Optional, Dict, Any, List, Union, TYPE_CHECKING
-import logging
 from contextlib import contextmanager
+from ..logging import configure_logger,get_logger
 
 # Third-party imports
 try:
@@ -56,6 +56,9 @@ if TYPE_CHECKING:
 
 # Define return type alias for clarity
 ResultType = Union[List[Dict[str, Any]], 'pd.DataFrame']
+# Logger configuration
+configure_logger()
+logger = get_logger("wipekit.read.postgresql")
 
 class PostgreSQLManager:
     """

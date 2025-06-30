@@ -23,6 +23,7 @@ from typing import Optional
 from ..exceptions import ValidationError
 from ..logging import getLogger, configure_logger
 
+# Logger configuration
 configure_logger()
 logger = getLogger("wipekit.read.file_reader")
 
