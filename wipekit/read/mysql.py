@@ -24,21 +24,21 @@ Dependencies:
 
 Example:
 --------
->>> from wipekit.read import MySQLConfig, MySQLManager
->>> 
->>> config = MySQLConfig(
-...     host='localhost',
-...     database='mydb',
-...     user='user',
-...     password='pass',
-...     output_format='pandas'
-... )
->>> 
->>> # Using context manager (recommended)
->>> with MySQLManager(config) as mysql:
-...     # Returns pandas DataFrame
-...     df = mysql.execute_query('SELECT * FROM mytable WHERE status = %s', ('active',))
-...     print(f"Found {len(df)} active records")
+from wipekit.read import MySQLConfig, MySQLManager
+
+config = MySQLConfig(
+    host='localhost',
+    database='mydb',
+    user='user',
+    password='pass',
+    output_format='pandas'
+)
+
+# Using context manager (recommended)
+with MySQLManager(config) as mysql:
+    # Returns pandas DataFrame
+    df = mysql.execute_query('SELECT * FROM mytable WHERE status = %s', ('active',))
+    print(f"Found {len(df)} active records")
 """
 
 from typing import Optional, Dict, Any, List, Union, TYPE_CHECKING

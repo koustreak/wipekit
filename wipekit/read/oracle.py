@@ -23,20 +23,20 @@ Dependencies:
 
 Example:
 --------
->>> from wipekit.read import OracleConfig, OracleManager
->>> 
->>> config = OracleConfig(
-...     host='localhost',
-...     port=1521,
-...     service_name='ORCL',
-...     user='scott',
-...     password='tiger',
-...     output_format='pandas'
-... )
->>> 
->>> # Using context manager (recommended)
->>> with OracleManager(config) as oracle:
-...     df = oracle.execute_query('SELECT * FROM emp WHERE deptno = :1', (10,))
+from wipekit.read import OracleConfig, OracleManager
+
+config = OracleConfig(
+    host='localhost',
+    port=1521,
+    service_name='ORCL',
+    user='scott',
+    password='tiger',
+    output_format='pandas'
+)
+
+# Using context manager (recommended)
+with OracleManager(config) as oracle:
+    df = oracle.execute_query('SELECT * FROM emp WHERE deptno = :1', (10,))
 """
 
 from typing import Optional, Dict, Any, List, Union, TYPE_CHECKING

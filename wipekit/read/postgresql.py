@@ -22,15 +22,15 @@ Dependencies:
 
 Example:
 --------
->>> config = PostgreSQLConfig(
-...     host='localhost',
-...     database='mydb',
-...     user='user',
-...     password='pass',
-...     output_format='pandas'
-... )
->>> with PostgreSQLManager(config) as pg:
-...     df = pg.execute_query('SELECT * FROM mytable')
+config = PostgreSQLConfig(
+    host='localhost',
+    database='mydb',
+    user='user',
+    password='pass',
+    output_format='pandas'
+)
+with PostgreSQLManager(config) as pg:
+    df = pg.execute_query('SELECT * FROM mytable')
 """
 
 from typing import Optional, Dict, Any, List, Union, TYPE_CHECKING
