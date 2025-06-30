@@ -2,11 +2,13 @@ from .postgresql import PostgreSQLManager
 from .mysql import MySQLManager
 from .oracle import OracleManager
 from .config import PostgreSQLConfig, MySQLConfig, OracleConfig
+from .file_reader import FileManager
 
 __all__ = [
     'PostgreSQLManager', 'PostgreSQLConfig',
     'MySQLManager', 'MySQLConfig',
-    'OracleManager', 'OracleConfig'
+    'OracleManager', 'OracleConfig',
+    'FileManager'
 ]
 
 """

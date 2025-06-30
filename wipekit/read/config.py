@@ -1,5 +1,42 @@
+"""
+Configuration Module for Database Connections in WipeKit
+=====================================================
+
+This module provides configuration classes for managing database connections across
+different database management systems (PostgreSQL, MySQL, Oracle). Each configuration
+class implements validation, default values, and dictionary-based instantiation.
+
+Configuration Classes:
+    - PostgreSQLConfig: Configuration for PostgreSQL database connections
+    - MySQLConfig: Configuration for MySQL database connections
+    - OracleConfig: Configuration for Oracle database connections
+
+Common Features:
+    - Connection pool management (min/max connections)
+    - Multiple output formats (dict, pandas, spark)
+    - Comprehensive parameter validation
+    - Dictionary-based instantiation
+    - Default values for common parameters
+
+Example:
+    >>> config = PostgreSQLConfig(
+    ...     host='localhost',
+    ...     port=5432,
+    ...     database='mydb',
+    ...     user='admin',
+    ...     password='secret'
+    ... )
+    >>> # Or using dictionary
+    >>> config_dict = {
+    ...     'host': 'localhost',
+    ...     'database': 'mydb',
+    ...     'user': 'admin',
+    ...     'password': 'secret'
+    ... }
+    >>> config = PostgreSQLConfig.from_dict(config_dict)
+"""
+
 from dataclasses import dataclass
-from typing import Optional
 from ..exceptions import ConfigurationError
 
 @dataclass
@@ -82,10 +119,21 @@ class MySQLConfig:
     
     def validate(self) -> None:
         """
-        Validate configuration parameters
-        
+        Validate configuration parameters for database connection.
+
+        Performs comprehensive validation of all configuration parameters to ensure
+        they meet the requirements for establishing a successful database connection:
+        - Verifies data types (e.g., port must be an integer)
+        - Validates connection pool settings (min <= max connections)
+        - Ensures required credentials are provided
+        - Checks that output format is supported
+        - Validates database-specific parameters
+
+        This method is automatically called during object initialization via __post_init__
+        to ensure configuration validity before any connection attempt is made.
+
         Raises:
-            ConfigurationError: If any configuration parameter is invalid
+            ConfigurationError: If any configuration parameter is invalid or missing
         """
         if not isinstance(self.port, int):
             raise ConfigurationError("Port must be an integer")

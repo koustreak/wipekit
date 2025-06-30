@@ -9,7 +9,7 @@ and flexible data format conversions.
 Features:
 ---------
 - Connection pooling for efficient database connections
-- Support for multiple output formats (dict, pandas DataFrame, Spark DataFrame)
+- Support for multiple output formats (dict, pandas DataFrame)
 - Context manager interface for safe connection handling
 - Error handling and automatic connection cleanup
 - Table management utilities (creation, schema inspection)
@@ -18,7 +18,6 @@ Dependencies:
 ------------
 - Required: psycopg2-binary
 - Optional: pandas (for DataFrame output)
-- Optional: pyspark (for Spark DataFrame output)
 
 Example:
 --------
@@ -54,12 +53,9 @@ from ..exceptions import ConnectionError, DataFormatError, ValidationError
 # Type checking imports
 if TYPE_CHECKING:
     import pandas as pd
-    from pyspark.sql import DataFrame as SparkDataFrame
-
-logger = logging.getLogger(__name__)
 
 # Define return type alias for clarity
-ResultType = Union[List[Dict[str, Any]], 'pd.DataFrame', 'SparkDataFrame']
+ResultType = Union[List[Dict[str, Any]], 'pd.DataFrame']
 
 class PostgreSQLManager:
     """
@@ -77,7 +73,6 @@ class PostgreSQLManager:
             
         self._pool: Optional[SimpleConnectionPool] = None
         self._pandas_df = None
-        self._spark = None
         
         # Lazy import of optional dependencies
         if self.config.output_format == "pandas":
@@ -88,16 +83,6 @@ class PostgreSQLManager:
                 raise DataFormatError(
                     "pandas is required for pandas output format. "
                     "Install it with: pip install pandas"
-                )
-        
-        elif self.config.output_format == "spark":
-            try:
-                from pyspark.sql import SparkSession
-                self._spark = SparkSession.builder.getOrCreate()
-            except ImportError:
-                raise DataFormatError(
-                    "pyspark is required for spark output format. "
-                    "Install it with: pip install pyspark"
                 )
         
         self.initialize_pool()
@@ -164,21 +149,12 @@ class PostgreSQLManager:
                     if self.config.output_format == "dict":
                         return result
                         
-                    elif self.config.output_format == "pandas":
+                    else:
                         try:
                             return self._pandas_df.DataFrame(result)
                         except Exception as e:
                             raise DataFormatError(f"Failed to convert to pandas DataFrame: {str(e)}")
-                        
-                    elif self.config.output_format == "spark":
-                        try:
-                            if result:
-                                columns = list(result[0].keys())
-                                rows = [[row[col] for col in columns] for row in result]
-                                return self._spark.createDataFrame(rows, columns)
-                            return self._spark.createDataFrame([], [])
-                        except Exception as e:
-                            raise DataFormatError(f"Failed to convert to Spark DataFrame: {str(e)}")
+
                 except psycopg2.Error as e:
                     raise ConnectionError(f"Query execution failed: {str(e)}")
 

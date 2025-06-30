@@ -9,7 +9,7 @@ robust error handling, and flexible data format conversions.
 Features:
 ---------
 - Connection pooling for efficient database access
-- Multiple output formats (dict, pandas DataFrame, Spark DataFrame)
+- Multiple output formats (dict, pandas DataFrame)
 - Context manager interface for safe connection handling
 - Comprehensive error handling and connection cleanup
 - Query parameterization for SQL injection prevention
@@ -20,7 +20,6 @@ Dependencies:
 ------------
 - Required: mysql-connector-python
 - Optional: pandas (for DataFrame output)
-- Optional: pyspark (for Spark DataFrame output)
 
 Example:
 --------
@@ -68,13 +67,12 @@ from ..exceptions import (
 # Type checking imports
 if TYPE_CHECKING:
     import pandas as pd
-    from pyspark.sql import DataFrame as SparkDataFrame
 
 # Configure logging
 logger = logging.getLogger(__name__)
 
 # Type alias for query results
-ResultType = Union[List[Dict[str, Any]], 'pd.DataFrame', 'SparkDataFrame']
+ResultType = Union[List[Dict[str, Any]], 'pd.DataFrame']
 
 class MySQLManager:
     """
@@ -101,7 +99,6 @@ class MySQLManager:
             
         self._pool = None
         self._pandas_df = None
-        self._spark = None
         
         # Initialize data format handlers
         self._initialize_data_handlers()
@@ -117,16 +114,6 @@ class MySQLManager:
                 raise DataFormatError(
                     "pandas is required for pandas output format. "
                     "Install it with: pip install pandas"
-                )
-        
-        elif self.config.output_format == "spark":
-            try:
-                from pyspark.sql import SparkSession
-                self._spark = SparkSession.builder.getOrCreate()
-            except ImportError:
-                raise DataFormatError(
-                    "pyspark is required for spark output format. "
-                    "Install it with: pip install pyspark"
                 )
 
     def _initialize_connection_pool(self) -> None:
@@ -194,7 +181,7 @@ class MySQLManager:
             params: Query parameters for parameterized queries
             
         Returns:
-            Query results in the specified format (dict, pandas DataFrame, or Spark DataFrame)
+            Query results in the specified format (dict, pandas DataFrame)
             
         Raises:
             ConnectionError: If there is a database connection error
@@ -218,16 +205,6 @@ class MySQLManager:
                         return self._pandas_df.DataFrame(result)
                     except Exception as e:
                         raise DataFormatError(f"Failed to convert to pandas DataFrame: {str(e)}")
-                    
-                elif self.config.output_format == "spark":
-                    try:
-                        if result:
-                            columns = list(result[0].keys())
-                            rows = [[row[col] for col in columns] for row in result]
-                            return self._spark.createDataFrame(rows, columns)
-                        return self._spark.createDataFrame([], [])
-                    except Exception as e:
-                        raise DataFormatError(f"Failed to convert to Spark DataFrame: {str(e)}")
                         
             except mysql.connector.Error as e:
                 raise ConnectionError(f"Query execution failed: {str(e)}")

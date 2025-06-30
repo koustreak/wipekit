@@ -9,7 +9,7 @@ error handling, and flexible data format conversions.
 Features:
 ---------
 - Connection pooling for efficient database access
-- Support for multiple output formats (dict, pandas DataFrame, Spark DataFrame)
+- Support for multiple output formats (dict, pandas DataFrame)
 - Context manager interface for safe connection handling
 - Error handling and automatic connection cleanup
 - Advanced features like connection sharding and RAC support
@@ -19,7 +19,6 @@ Dependencies:
 ------------
 - Required: oracledb
 - Optional: pandas (for DataFrame output)
-- Optional: pyspark (for Spark DataFrame output)
 
 Example:
 --------
@@ -63,13 +62,9 @@ from ..exceptions import (
 # Type checking imports
 if TYPE_CHECKING:
     import pandas as pd
-    from pyspark.sql import DataFrame as SparkDataFrame
-
-# Configure logging
-logger = logging.getLogger(__name__)
 
 # Type alias for query results
-ResultType = Union[List[Dict[str, Any]], 'pd.DataFrame', 'SparkDataFrame']
+ResultType = Union[List[Dict[str, Any]], 'pd.DataFrame']
 
 class OracleManager:
     """
@@ -96,7 +91,6 @@ class OracleManager:
             
         self._pool = None
         self._pandas_df = None
-        self._spark = None
         
         # Initialize data format handlers
         self._initialize_data_handlers()
@@ -113,16 +107,7 @@ class OracleManager:
                     "pandas is required for pandas output format. "
                     "Install it with: pip install pandas"
                 )
-        
-        elif self.config.output_format == "spark":
-            try:
-                from pyspark.sql import SparkSession
-                self._spark = SparkSession.builder.getOrCreate()
-            except ImportError:
-                raise DataFormatError(
-                    "pyspark is required for spark output format. "
-                    "Install it with: pip install pyspark"
-                )
+
 
     def _initialize_connection_pool(self) -> None:
         """
@@ -182,11 +167,7 @@ class OracleManager:
             if conn:
                 self._pool.release(conn)
 
-    def execute_query(
-        self,
-        query: str,
-        params: Optional[Union[tuple, List[tuple], dict]] = None
-    ) -> ResultType:
+    def execute_query(self,query: str,params: Optional[Union[tuple, List[tuple], dict]] = None) -> ResultType:
         """
         Execute a SQL query and return the results in the specified format.
         
@@ -195,7 +176,7 @@ class OracleManager:
             params: Query parameters for parameterized queries
             
         Returns:
-            Query results in the specified format (dict, pandas DataFrame, or Spark DataFrame)
+            Query results in the specified format (dict, pandas DataFrame)
             
         Raises:
             ConnectionError: If there is a database connection error
@@ -216,21 +197,11 @@ class OracleManager:
                 if self.config.output_format == "dict":
                     return result
                     
-                elif self.config.output_format == "pandas":
+                else:
                     try:
                         return self._pandas_df.DataFrame(result)
                     except Exception as e:
                         raise DataFormatError(f"Failed to convert to pandas DataFrame: {str(e)}")
-                    
-                elif self.config.output_format == "spark":
-                    try:
-                        if result:
-                            columns = list(result[0].keys())
-                            rows = [[row[col] for col in columns] for row in result]
-                            return self._spark.createDataFrame(rows, columns)
-                        return self._spark.createDataFrame([], [])
-                    except Exception as e:
-                        raise DataFormatError(f"Failed to convert to Spark DataFrame: {str(e)}")
                         
             except oracledb.Error as e:
                 raise ConnectionError(f"Query execution failed: {str(e)}")

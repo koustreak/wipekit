@@ -84,13 +84,6 @@ class JsonFormatter(logging.Formatter):
                 record.created
             ).isoformat()
 
-        # Add location information
-        log_data["location"] = {
-            "file": record.pathname,
-            "line": record.lineno,
-            "function": record.funcName
-        }
-
         # Add exception info if present
         if record.exc_info:
             log_data["exception"] = {
@@ -102,16 +95,6 @@ class JsonFormatter(logging.Formatter):
         # Add extra fields from the record
         if hasattr(record, "_extra") and record._extra:
             log_data["data"] = record._extra
-
-        # Add process and thread info for diagnostics
-        log_data["process"] = {
-            "id": record.process,
-            "name": record.processName
-        }
-        log_data["thread"] = {
-            "id": record.thread,
-            "name": record.threadName
-        }
 
         return json.dumps(log_data)
 

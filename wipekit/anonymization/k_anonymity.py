@@ -8,6 +8,11 @@ import numpy as np
 from collections import Counter
 from sklearn.preprocessing import KBinsDiscretizer
 
+from wipekit.logging import get_logger
+
+# Initialize module-level logger
+logger = get_logger("wipekit.anonymization.k_anonymity")
+
 class KAnonymity:
     """
     Implements the K-Anonymity data anonymization technique.
@@ -50,9 +55,18 @@ class KAnonymity:
         """
         # Validate inputs
         if not isinstance(df, pd.DataFrame):
+            logger.error("Invalid input: df is not a pandas DataFrame")
             raise TypeError("df must be a pandas DataFrame")
         if not all(col in df.columns for col in quasi_identifiers):
+            logger.error(f"Missing columns in DataFrame: {[col for col in quasi_identifiers if col not in df.columns]}")
             raise ValueError("All quasi-identifiers must be columns in the DataFrame")
+
+        logger.info(f"Starting anonymization with k={self.k}", extra={
+            "rows": len(df),
+            "quasi_identifiers": quasi_identifiers,
+            "categorical_method": categorical_method,
+            "numerical_method": numerical_method
+        })
 
         # Create a copy to avoid modifying the original
         anonymized_df = df.copy()
@@ -61,18 +75,27 @@ class KAnonymity:
         for column in quasi_identifiers:
             # Check data type to apply appropriate anonymization
             if pd.api.types.is_numeric_dtype(anonymized_df[column]):
+                logger.debug(f"Anonymizing numerical column: {column} using method {numerical_method}")
                 anonymized_df = self._anonymize_numerical(
                     anonymized_df, column, method=numerical_method, bin_count=bin_count
                 )
             else:
+                logger.debug(f"Anonymizing categorical column: {column} using method {categorical_method}")
                 anonymized_df = self._anonymize_categorical(
                     anonymized_df, column, method=categorical_method
                 )
 
         # Check if k-anonymity is satisfied
         if not self._verify_k_anonymity(anonymized_df, quasi_identifiers):
+            logger.warning(f"K-anonymity not satisfied after initial processing, applying suppression")
             # If not, apply suppression on problematic records
             anonymized_df = self._apply_suppression(anonymized_df, quasi_identifiers)
+
+        logger.info(f"Anonymization complete", extra={
+            "original_rows": len(df),
+            "anonymized_rows": len(anonymized_df),
+            "columns_anonymized": len(quasi_identifiers)
+        })
 
         return anonymized_df
 
